@@ -29,7 +29,7 @@ LOCAL_LDFLAGS_x86    += -Wl,--version-script=$(LOCAL_PATH)/libdl.x86.map
 LOCAL_LDFLAGS_x86_64 += -Wl,--version-script=$(LOCAL_PATH)/libdl.x86_64.map
 
 LOCAL_SRC_FILES:= libdl.c
-LOCAL_CFLAGS := -Wall -Wextra -Wunused -Werror
+LOCAL_CFLAGS := -Wall -Wextra -Wunused -Werror -O3
 LOCAL_CXX_STL := none
 
 LOCAL_MODULE := libdl

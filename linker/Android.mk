@@ -39,6 +39,7 @@ LOCAL_CFLAGS += \
     -fno-stack-protector \
     -Wstrict-overflow=5 \
     -fvisibility=hidden \
+    -O3 \
     -Wall -Wextra -Wunused -Werror \
 
 LOCAL_CFLAGS_arm += -D__work_around_b_24465209__

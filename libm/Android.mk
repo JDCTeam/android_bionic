@@ -495,6 +495,7 @@ LOCAL_CLANG := $(libm_clang)
 LOCAL_ARM_MODE := arm
 LOCAL_CFLAGS := \
     -D__BIONIC_NO_MATH_INLINES \
+    -O3 \
     -DFLT_EVAL_METHOD=0 \
     -include $(LOCAL_PATH)/freebsd-compat.h \
     -Werror \

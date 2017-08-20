@@ -30,6 +30,8 @@ LOCAL_SRC_FILES := \
   src/packer.cc \
   src/sleb128.cc \
 
+LOCAL_CFLAGS := O3
+
 LOCAL_STATIC_LIBRARIES := libelf libz
 LOCAL_C_INCLUDES := external/elfutils/src/libelf
 LOCAL_MODULE := lib_relocation_packer

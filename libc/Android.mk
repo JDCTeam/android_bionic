@@ -692,7 +692,7 @@ LOCAL_SRC_FILES_arm64 := arch-arm64/bionic/__set_tls.c
 LOCAL_SRC_FILES_x86 := arch-x86/bionic/__set_tls.c
 LOCAL_SRC_FILES_x86_64 := arch-x86_64/bionic/__set_tls.c
 
-LOCAL_CFLAGS := $(libc_common_cflags) -fno-stack-protector
+LOCAL_CFLAGS := $(libc_common_cflags) -fno-stack-protector -O3
 LOCAL_CONLYFLAGS := $(libc_common_conlyflags)
 LOCAL_CPPFLAGS := $(libc_common_cppflags)
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
