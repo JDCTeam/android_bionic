@@ -46,6 +46,7 @@ cc_library {
     },
     srcs: ["libdl.c", "libdl_cfi.cpp"],
     cflags: [
+        "-O3",
         "-Wall",
         "-Wextra",
         "-Wunused",
@@ -96,6 +97,7 @@ cc_library {
     },
     srcs: ["ld_android.c"],
     cflags: [
+	"-O3",
         "-Wall",
         "-Wextra",
         "-Wunused",
