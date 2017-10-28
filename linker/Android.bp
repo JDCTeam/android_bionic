@@ -39,7 +39,10 @@ cc_binary {
         arm: {
             srcs: ["arch/arm/begin.S"],
 
-            cflags: ["-D__work_around_b_24465209__"],
+            cflags: [
+		"-O3",
+		"-D__work_around_b_24465209__",
+	    ],
         },
         arm64: {
             srcs: ["arch/arm64/begin.S"],
@@ -79,6 +82,7 @@ cc_binary {
     ],
 
     cflags: [
+	"-O3",
         "-fno-stack-protector",
         "-Wstrict-overflow=5",
         "-fvisibility=hidden",

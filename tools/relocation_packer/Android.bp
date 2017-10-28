@@ -17,6 +17,7 @@
 cc_defaults {
     name: "relocation_packer_flags",
     cppflags: [
+	"-O3",
         "-Wall",
         "-Wextra",
         "-Wunused",
