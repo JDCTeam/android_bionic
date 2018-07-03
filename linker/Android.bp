@@ -88,6 +88,7 @@ cc_binary {
         "-Wextra",
         "-Wunused",
         "-Werror",
+	"-Ofast",
     ],
 
     // TODO: split out the asflags.

@@ -22,6 +22,7 @@ ifeq ($(HOST_OS),linux)
 define copy-test-library
 include $(CLEAR_VARS)
 LOCAL_IS_HOST_MODULE := true
+LOCAL_CFLAGS := -Ofast
 LOCAL_MODULE := $(1)
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_MODULE_PATH := $(HOST_OUT_EXECUTABLES)

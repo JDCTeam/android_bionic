@@ -50,6 +50,7 @@ cc_library {
         "-Wextra",
         "-Wunused",
         "-Werror",
+        "-Ofast",
     ],
     stl: "none",
 
@@ -100,6 +101,7 @@ cc_library {
         "-Wextra",
         "-Wunused",
         "-Werror",
+	"-Ofast",
     ],
     stl: "none",
 
