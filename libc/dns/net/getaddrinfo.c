@@ -108,7 +108,9 @@
 #include <stdarg.h>
 #include "nsswitch.h"
 
-#include "hosts_cache.h"
+#ifdef USE_WRAPPER
+#include "codeaurora/PropClientDispatch.h"
+#endif
 
 typedef union sockaddr_union {
     struct sockaddr     generic;
@@ -727,6 +729,15 @@ android_getaddrinfofornetcontext(const char *hostname, const char *servname,
 		ERR(EAI_NONAME);
 
 #if defined(__ANDROID__)
+#ifdef USE_WRAPPER
+        const char* cache_mode = getenv("ANDROID_DNS_MODE");
+        bool use_proxy = (cache_mode == NULL || strcmp(cache_mode, "local") != 0);
+        if (use_proxy) {
+            if (__propClientDispatch.propGetAddrInfoForNet) {
+                __propClientDispatch.propGetAddrInfoForNet(getpid(), getuid(), getgid(), hostname, hints);
+            }
+        }
+#endif
 	int gai_error = android_getaddrinfo_proxy(
 		hostname, servname, hints, res, netcontext->app_netid);
 	if (gai_error != EAI_SYSTEM) {
@@ -2121,14 +2132,6 @@ _files_getaddrinfo(void *rv, void *cb_data, va_list ap)
 
 	name = va_arg(ap, char *);
 	pai = va_arg(ap, struct addrinfo *);
-
-	memset(&sentinel, 0, sizeof(sentinel));
-	cur = &sentinel;
-	int gai_error = hc_getaddrinfo(name, NULL, pai, &cur);
-	if (gai_error != EAI_SYSTEM) {
-		*((struct addrinfo **)rv) = sentinel.ai_next;
-		return (gai_error == 0 ? NS_SUCCESS : NS_NOTFOUND);
-	}
 
 //	fprintf(stderr, "_files_getaddrinfo() name = '%s'\n", name);
 	memset(&sentinel, 0, sizeof(sentinel));

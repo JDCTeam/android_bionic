@@ -58,6 +58,11 @@
 
 extern "C" {
   extern void netdClientInit(void);
+
+#ifdef USE_WRAPPER
+  extern void propClientInit(void);
+#endif
+
   extern int __cxa_atexit(void (*)(void *), void *, void *);
 };
 
@@ -73,6 +78,10 @@ static void __libc_preinit_impl(KernelArgumentBlock& args) {
 
   // Hooks for various libraries to let them know that we're starting up.
   __libc_globals.mutate(__libc_init_malloc);
+#ifdef USE_WRAPPER
+  propClientInit();
+#endif
+
   netdClientInit();
 }
 
@@ -93,6 +102,8 @@ __attribute__((constructor)) static void __libc_preinit() {
   // The linker has initialized its copy of the global stack_chk_guard, and filled in the main
   // thread's TLS slot with that value. Initialize the local global stack guard with its value.
   __stack_chk_guard = reinterpret_cast<uintptr_t>(tls[TLS_SLOT_STACK_GUARD]);
+
+
 
   __libc_preinit_impl(*args);
 }

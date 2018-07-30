@@ -38,6 +38,7 @@
 #include "private/bionic_globals.h"
 #include "private/bionic_tls.h"
 #include "private/KernelArgumentBlock.h"
+#include <sys/system_properties.h>
 
 #include "android-base/strings.h"
 #include "android-base/stringprintf.h"
@@ -203,6 +204,24 @@ static char kLinkerPath[] = "/system/bin/linker64";
 static char kLinkerPath[] = "/system/bin/linker";
 #endif
 
+#define BUFF_SIZE 4096
+
+char *strnstr(const char *src, const char *find, size_t len) {
+  size_t find_l;
+
+  find_l = strnlen(find, BUFF_SIZE);
+  if (!find_l)
+    return const_cast<char *>(src);
+  while (len >= find_l) {
+    len--;
+    if (!memcmp(src, find, find_l))
+      return const_cast<char *>(src);
+    src++;
+  }
+
+  return NULL;
+}
+
 /*
  * This code is called after the linker has linked itself and
  * fixed it's own GOT. It is safe to make references to externs
@@ -251,6 +270,7 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
   // doesn't cost us anything.
   const char* ldpath_env = nullptr;
   const char* ldpreload_env = nullptr;
+  const char* ldshim_libs_env = nullptr;
   if (!getauxval(AT_SECURE)) {
     ldpath_env = getenv("LD_LIBRARY_PATH");
     if (ldpath_env != nullptr) {
@@ -260,6 +280,7 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
     if (ldpreload_env != nullptr) {
       INFO("[ LD_PRELOAD set to \"%s\" ]", ldpreload_env);
     }
+    ldshim_libs_env = getenv("LD_SHIM_LIBS");
   }
 
   struct stat file_stat;
@@ -334,11 +355,7 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
   // Use LD_LIBRARY_PATH and LD_PRELOAD (but only if we aren't setuid/setgid).
   parse_LD_LIBRARY_PATH(ldpath_env);
   parse_LD_PRELOAD(ldpreload_env);
-
-#ifdef LD_SHIM_LIBS
-  // Read from TARGET_LD_SHIM_LIBS
-  parse_LD_SHIM_LIBS(LD_SHIM_LIBS);
-#endif
+  parse_LD_SHIM_LIBS(ldshim_libs_env);
 
   somain = si;
 
@@ -362,16 +379,20 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
   std::vector<const char*> needed_library_name_list;
   size_t ld_preloads_count = 0;
 
+  // Enable fd/socket/mmap leak detector feature.
+  char value[PROP_VALUE_MAX];
+  if (__system_property_get("libc.debug.leakdetect", value) && atoi(value) >= 0) {
+    if (__system_property_get("libc.debug.leakdetect.program", value) == 0 ||
+                              strnstr(executable_path, value, strlen(executable_path)) != NULL) {
+      needed_library_name_list.push_back("libc_leak_detector.so");
+      ++ld_preloads_count;
+    }
+  }
+
   for (const auto& ld_preload_name : g_ld_preload_names) {
     needed_library_name_list.push_back(ld_preload_name.c_str());
     ++ld_preloads_count;
   }
-
-#ifdef LD_SHIM_LIBS
-  for_each_matching_shim(si->get_realpath(), [&](const char* name) {
-    needed_library_name_list.push_back(name);
-  });
-#endif
 
   for_each_dt_needed(si, [&](const char* name) {
     needed_library_name_list.push_back(name);
