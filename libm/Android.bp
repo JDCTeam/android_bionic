@@ -155,7 +155,6 @@ cc_library {
         "upstream-freebsd/lib/msun/src/s_significandf.c",
         "upstream-freebsd/lib/msun/src/s_sin.c",
         "upstream-freebsd/lib/msun/src/s_sincos.c",
-        "upstream-freebsd/lib/msun/src/s_sincosf.c",
         "upstream-freebsd/lib/msun/src/s_tan.c",
         "upstream-freebsd/lib/msun/src/s_tanf.c",
         "upstream-freebsd/lib/msun/src/s_tanh.c",
