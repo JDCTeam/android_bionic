@@ -19,7 +19,6 @@ cc_defaults {
     cflags: [
         "-Wall",
         "-Werror",
-        "-Ofast",
     ],
     cppflags: [
         "-Wextra",
