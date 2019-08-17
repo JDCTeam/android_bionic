@@ -17,6 +17,7 @@
 cc_defaults {
     name: "bionic-benchmarks-defaults",
     cflags: [
+        "-O3",
         "-fno-builtin",
         "-Wall",
         "-Wextra",
@@ -52,6 +53,7 @@ cc_defaults {
         "-Wextra",
         "-Werror",
         "-Wunused",
+        "-O3",
     ],
 }
 
@@ -90,6 +92,7 @@ cc_benchmark_host {
 
 cc_library_static {
     name: "libBionicBenchmarksUtils",
+    cflags: ["-O3"],
     defaults: ["bionic-benchmarks-extras-defaults"],
     srcs: ["util.cpp"],
     host_supported: true,
