@@ -470,6 +470,7 @@ cc_library {
         "-fno-math-errno",
         "-Wall",
         "-Werror",
+        "-Ofast",
         "-Wno-missing-braces",
         "-Wno-parentheses",
         "-Wno-sign-compare",

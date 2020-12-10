@@ -32,6 +32,7 @@ libc_common_flags = [
     "-D__BIONIC_LP32_USE_STAT64",
     "-Wall",
     "-Wextra",
+    "-Ofast",
     "-Wunused",
     "-Wno-char-subscripts",
     "-Wno-deprecated-declarations",
@@ -202,6 +203,7 @@ cc_library_static {
         // Compile libc_init_static.cpp with -ffreestanding, because some of its code is called
         // from the linker before ifunc resolvers have made string.h functions available.
         "-ffreestanding",
+        "-Ofast",
     ],
 }
 
@@ -209,7 +211,7 @@ cc_library_static {
     name: "libc_init_dynamic",
     defaults: ["libc_defaults"],
     srcs: ["bionic/libc_init_dynamic.cpp"],
-    cflags: ["-fno-stack-protector"],
+    cflags: ["-fno-stack-protector","-Ofast"],
 }
 
 // ========================================================
@@ -353,6 +355,7 @@ cc_library_static {
         "-Wno-sign-compare",
         "-Wno-unused-parameter",
         "-include freebsd-compat.h",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -372,6 +375,7 @@ cc_library_static {
         "-Wno-sign-compare",
         "-include freebsd-compat.h",
         "-Wframe-larger-than=66000",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -427,6 +431,7 @@ cc_library_static {
         "-Wno-unused-parameter",
         "-DPOSIX_MISTAKE",
         "-include netbsd-compat.h",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -556,6 +561,7 @@ cc_library_static {
         "-Wno-sign-compare",
         "-Wno-unused-parameter",
         "-include openbsd-compat.h",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -579,6 +585,7 @@ cc_library_static {
         "-include openbsd-compat.h",
         "-Wno-sign-compare",
         "-Wframe-larger-than=5000",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -664,6 +671,7 @@ cc_library_static {
     cflags: [
         "-Wno-sign-compare",
         "-Wno-unused-parameter",
+        "-Ofast",
         "-include openbsd-compat.h",
     ],
 
@@ -713,6 +721,7 @@ cc_library_static {
     cflags: [
         "-Wno-sign-compare",
         "-include openbsd-compat.h",
+        "-Ofast",
     ],
 
     local_include_dirs: [
@@ -1373,6 +1382,7 @@ cc_library_static {
     cflags: [
         "-fvisibility=hidden",
         "-DLIBC_STATIC",
+        "-Ofast",
     ],
 
     whole_static_libs: [
@@ -1475,6 +1485,7 @@ cc_library_static {
     cflags: [
         "-ffreestanding",
         "-fno-stack-protector",
+        "-Ofast",
         "-fno-jump-tables",
     ],
     arch: {
@@ -1521,7 +1532,7 @@ cc_library_static {
 cc_library_static {
     name: "libc_unwind_static",
     defaults: ["libc_defaults"],
-    cflags: ["-DLIBC_STATIC"],
+    cflags: ["-DLIBC_STATIC","-Ofast"],
 
     srcs: ["bionic/dl_iterate_phdr_static.cpp"],
     arch: {
@@ -1607,7 +1618,7 @@ cc_library {
     },
     static: {
         srcs: [ ":libc_sources_static" ],
-        cflags: ["-DLIBC_STATIC"],
+        cflags: ["-DLIBC_STATIC","-Ofast"],
         whole_static_libs: [
             "gwp_asan",
             "libc_init_static",
