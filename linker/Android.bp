@@ -33,6 +33,7 @@ cc_object {
         "-Wextra",
         "-Wno-unused",
         "-Werror",
+        "-Ofast",
     ],
 
     srcs: [
@@ -78,6 +79,7 @@ cc_defaults {
         "-Wextra",
         "-Wunused",
         "-Werror",
+        "-Ofast",
     ],
 
     // TODO: split out the asflags.
@@ -401,6 +403,7 @@ cc_library {
         "-Wextra",
         "-Wunused",
         "-Werror",
+        "-Ofast",
     ],
     stl: "none",
 
