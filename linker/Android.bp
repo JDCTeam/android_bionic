@@ -82,6 +82,7 @@ cc_defaults {
     name: "linker_defaults",
     defaults: [
         "shim_libs_defaults",
+        "process_sdk_version_overrides_defaults"
     ],
     arch: {
         arm: {
@@ -116,15 +117,6 @@ cc_defaults {
     product_variables: {
         debuggable: {
             cppflags: ["-DUSE_LD_CONFIG_FILE"],
-        },
-
-        lineage: {
-            target_process_sdk_version_override: {
-                cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
-            },
-            target_shim_libs: {
-                cppflags: ["-DLD_SHIM_LIBS=\"%s\""],
-            },
         },
 
     },
