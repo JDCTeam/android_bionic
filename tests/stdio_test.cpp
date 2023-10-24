@@ -19,14 +19,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
-#include <sys/types.h>
+#include <sys/cdefs.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <wchar.h>
-#include <locale.h>
 
 #include <string>
 #include <thread>
@@ -34,6 +35,7 @@
 
 #include <android-base/file.h>
 #include <android-base/silent_death_test.h>
+#include <android-base/strings.h>
 #include <android-base/test_utils.h>
 #include <android-base/unique_fd.h>
 
@@ -136,6 +138,22 @@ TEST(STDIO_TEST, tmpfile64) {
   FILE* fp = tmpfile64();
   ASSERT_TRUE(fp != nullptr);
   fclose(fp);
+}
+
+TEST(STDIO_TEST, tmpfile_TMPDIR) {
+  TemporaryDir td;
+  setenv("TMPDIR", td.path, 1);
+
+  FILE* fp = tmpfile();
+  ASSERT_TRUE(fp != nullptr);
+
+  std::string fd_path = android::base::StringPrintf("/proc/self/fd/%d", fileno(fp));
+  char path[PATH_MAX];
+  ASSERT_GT(readlink(fd_path.c_str(), path, sizeof(path)), 0);
+  // $TMPDIR influenced where our temporary file ended up?
+  ASSERT_TRUE(android::base::StartsWith(path, td.path)) << path;
+  // And we used O_TMPFILE, right?
+  ASSERT_TRUE(android::base::EndsWith(path, " (deleted)")) << path;
 }
 
 TEST(STDIO_TEST, dprintf) {
@@ -363,10 +381,13 @@ TEST(STDIO_TEST, snprintf_S) { // Synonym for %ls.
 
 TEST_F(STDIO_DEATHTEST, snprintf_n) {
 #if defined(__BIONIC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
   // http://b/14492135 and http://b/31832608.
   char buf[32];
   int i = 1234;
   EXPECT_DEATH(snprintf(buf, sizeof(buf), "a %n b", &i), "%n not allowed on Android");
+#pragma GCC diagnostic pop
 #else
   GTEST_SKIP() << "glibc does allow %n";
 #endif
@@ -2740,8 +2761,8 @@ TEST(STDIO_TEST, renameat) {
 }
 
 TEST(STDIO_TEST, renameat2) {
-#if defined(__GLIBC__)
-  GTEST_SKIP() << "glibc doesn't have renameat2 until 2.28";
+#if defined(__GLIBC__) || defined(ANDROID_HOST_MUSL)
+  GTEST_SKIP() << "glibc doesn't have renameat2 until 2.28 and musl doesn't have renameat2";
 #else
   TemporaryDir td;
   android::base::unique_fd dirfd{open(td.path, O_PATH)};

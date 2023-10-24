@@ -251,9 +251,10 @@ static void out_vformat(Out& o, const char* format, va_list args) {
     char sign = '\0';
     int width = -1;
     int prec = -1;
+    bool alternate = false;
     size_t bytelen = sizeof(int);
     int slen;
-    char buffer[32]; /* temporary buffer used to format numbers */
+    char buffer[64];  // temporary buffer used to format numbers/format errno string
 
     char c;
 
@@ -292,6 +293,9 @@ static void out_vformat(Out& o, const char* format, va_list args) {
         continue;
       } else if (c == ' ' || c == '+') {
         sign = c;
+        continue;
+      } else if (c == '#') {
+        alternate = true;
         continue;
       }
       break;
@@ -344,9 +348,6 @@ static void out_vformat(Out& o, const char* format, va_list args) {
     if (c == 's') {
       /* string */
       str = va_arg(args, const char*);
-      if (str == nullptr) {
-        str = "(null)";
-      }
     } else if (c == 'c') {
       /* character */
       /* NOTE: char is promoted to int when passed through the stack */
@@ -357,6 +358,8 @@ static void out_vformat(Out& o, const char* format, va_list args) {
       buffer[0] = '0';
       buffer[1] = 'x';
       format_integer(buffer + 2, sizeof(buffer) - 2, value, 'x');
+    } else if (c == 'm') {
+      strerror_r(errno, buffer, sizeof(buffer));
     } else if (c == 'd' || c == 'i' || c == 'o' || c == 'u' || c == 'x' || c == 'X') {
       /* integers - first read value from stack */
       uint64_t value;
@@ -388,13 +391,28 @@ static void out_vformat(Out& o, const char* format, va_list args) {
         value = static_cast<uint64_t>((static_cast<int64_t>(value << shift)) >> shift);
       }
 
-      /* format the number properly into our buffer */
-      format_integer(buffer, sizeof(buffer), value, c);
+      if (alternate && value != 0 && (c == 'x' || c == 'o')) {
+        if (c == 'x') {
+          buffer[0] = '0';
+          buffer[1] = 'x';
+          format_integer(buffer + 2, sizeof(buffer) - 2, value, c);
+        } else {
+          buffer[0] = '0';
+          format_integer(buffer + 1, sizeof(buffer) - 1, value, c);
+        }
+      } else {
+        /* format the number properly into our buffer */
+        format_integer(buffer, sizeof(buffer), value, c);
+      }
     } else if (c == '%') {
       buffer[0] = '%';
       buffer[1] = '\0';
     } else {
       __assert(__FILE__, __LINE__, "conversion specifier unsupported");
+    }
+
+    if (str == nullptr) {
+      str = "(null)";
     }
 
     /* if we are here, 'str' points to the content that must be
